@@ -1,0 +1,171 @@
+/* Ana App Stilleri */
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+body {
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  min-height: 100vh;
+  color: #333;
+}
+
+.App {
+  min-height: 100vh;
+}
+
+/* Genel Buton Stilleri */
+.btn-primary {
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  color: white;
+  border: none;
+  padding: 10px 20px;
+  border-radius: 8px;
+  cursor: pointer;
+  font-size: 14px;
+  font-weight: 500;
+  transition: all 0.3s ease;
+  text-decoration: none;
+  display: inline-block;
+}
+
+.btn-primary:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(102, 126, 234, 0.4);
+}
+
+.btn-secondary {
+  background: #f8f9fa;
+  color: #6c757d;
+  border: 1px solid #dee2e6;
+  padding: 10px 20px;
+  border-radius: 8px;
+  cursor: pointer;
+  font-size: 14px;
+  font-weight: 500;
+  transition: all 0.3s ease;
+  text-decoration: none;
+  display: inline-block;
+}
+
+.btn-secondary:hover {
+  background: #e9ecef;
+  transform: translateY(-1px);
+}
+
+.btn-danger {
+  background: #dc3545;
+  color: white;
+  border: none;
+  padding: 8px 16px;
+  border-radius: 6px;
+  cursor: pointer;
+  font-size: 12px;
+  transition: all 0.3s ease;
+}
+
+.btn-danger:hover {
+  background: #c82333;
+  transform: translateY(-1px);
+}
+
+.btn-link {
+  color: #667eea;
+  text-decoration: none;
+  font-size: 14px;
+  font-weight: 500;
+  transition: color 0.3s ease;
+}
+
+.btn-link:hover {
+  color: #764ba2;
+  text-decoration: underline;
+}
+
+/* Form Stilleri */
+.form-group {
+  margin-bottom: 20px;
+}
+
+.form-group label {
+  display: block;
+  margin-bottom: 8px;
+  font-weight: 500;
+  color: #495057;
+}
+
+.form-group input,
+.form-group textarea,
+.form-group select {
+  width: 100%;
+  padding: 12px;
+  border: 2px solid #e9ecef;
+  border-radius: 8px;
+  font-size: 14px;
+  transition: border-color 0.3s ease;
+}
+
+.form-group input:focus,
+.form-group textarea:focus,
+.form-group select:focus {
+  outline: none;
+  border-color: #667eea;
+  box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+}
+
+.form-row {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 20px;
+}
+
+.form-actions {
+  display: flex;
+  gap: 12px;
+  margin-top: 24px;
+}
+
+/* Hata ve Yükleme Mesajları */
+.error-message {
+  background: #f8d7da;
+  color: #721c24;
+  padding: 12px 16px;
+  border-radius: 8px;
+  margin-bottom: 20px;
+  border: 1px solid #f5c6cb;
+}
+
+.loading {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 200px;
+  font-size: 18px;
+  color: #6c757d;
+}
+
+/* Container Stilleri */
+.container {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 20px;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+  .form-row {
+    grid-template-columns: 1fr;
+  }
+  
+  .form-actions {
+    flex-direction: column;
+  }
+  
+  .btn-primary,
+  .btn-secondary {
+    width: 100%;
+    text-align: center;
+  }
+}

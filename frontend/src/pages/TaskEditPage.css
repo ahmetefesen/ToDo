@@ -1,0 +1,38 @@
+.task-edit-container {
+  max-width: 800px;
+  margin: 0 auto;
+  padding: 20px;
+}
+
+.task-edit-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 30px;
+  background: white;
+  padding: 20px;
+  border-radius: 12px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+}
+
+.task-edit-header h1 {
+  color: #333;
+  font-size: 28px;
+  font-weight: 600;
+  margin: 0;
+}
+
+.task-edit-form {
+  background: white;
+  border-radius: 12px;
+  padding: 24px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+}
+
+@media (max-width: 768px) {
+  .task-edit-header {
+    flex-direction: column;
+    gap: 16px;
+    align-items: stretch;
+  }
+} 

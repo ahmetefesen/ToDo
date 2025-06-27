@@ -6,7 +6,7 @@ from django.urls import reverse_lazy
 
 from django.contrib.auth.views import LoginView
 from django.contrib.auth.mixins import LoginRequiredMixin
-from django.conbutrib.auth.forms import UserCreationForm
+from django.contrib.auth.forms import UserCreationForm
 from django.contrib.auth import login, authenticate, logout
 from django.contrib import messages
 
@@ -28,6 +28,10 @@ from .models import (
 
 # Logging imports
 from .utils import SecurityLogger, OperationLogger, ErrorLogger
+
+from django.http import JsonResponse
+from django.views.decorators.csrf import csrf_exempt
+from django.utils.decorators import method_decorator
 
 def get_client_ip(request):
     """Client IP adresini al"""
@@ -65,6 +69,23 @@ class RegisterPage(FormView):
     form_class = UserCreationForm
     redirect_authenticated_user = True
     success_url = reverse_lazy('login')
+
+    @method_decorator(csrf_exempt)
+    def dispatch(self, *args, **kwargs):
+        return super().dispatch(*args, **kwargs)
+
+    def post(self, request, *args, **kwargs):
+        if request.content_type == 'application/json':
+            import json
+            data = json.loads(request.body)
+            form = self.form_class(data)
+            if form.is_valid():
+                user = form.save()
+                return JsonResponse({'success': True, 'message': 'Kayıt başarılı.'}, status=201)
+            else:
+                return JsonResponse(form.errors, status=400)
+        else:
+            return super().post(request, *args, **kwargs)
 
     def form_valid(self, form):
         user = form.save()
