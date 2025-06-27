@@ -7,7 +7,8 @@ from django.urls import reverse_lazy
 from django.contrib.auth.views import LoginView
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.contrib.auth.forms import UserCreationForm
-from django.contrib.auth import login, authenticate
+from django.contrib.auth import login, authenticate, logout
+from django.contrib import messages
 
 # Imports for Reordering Feature
 from django.views import View
@@ -63,15 +64,18 @@ class RegisterPage(FormView):
     template_name = 'base/register.html'
     form_class = UserCreationForm
     redirect_authenticated_user = True
-    success_url = reverse_lazy('tasks')
+    success_url = reverse_lazy('login')
 
     def form_valid(self, form):
         user = form.save()
         if user is not None:
-            login(self.request, user)
-            # Log yeni kullanıcı kaydı
-            SecurityLogger.log_login_success(user, get_client_ip(self.request))
+            messages.success(self.request, 'Kayıt başarılı, şimdi giriş yapabilirsin.')
         return super(RegisterPage, self).form_valid(form)
+
+    def form_invalid(self, form):
+        # Formu tamamen sıfırla
+        form = self.form_class()
+        return self.render_to_response(self.get_context_data(form=form))
 
     def get(self, *args, **kwargs):
         if self.request.user.is_authenticated:
@@ -454,3 +458,18 @@ class UserTeamsDetailAPI(generics.RetrieveUpdateDestroyAPIView):
     queryset = UserTeams.objects.all()
     serializer_class = UserTeamsSerializer
     permission_classes = [permissions.IsAuthenticated]
+
+def custom_logout(request):
+    logout(request)
+    return redirect('login')
+
+class TaskToggleCompleteView(LoginRequiredMixin, View):
+    def post(self, request, pk):
+        task = Task.objects.get(pk=pk, user=request.user)
+        if task.status == 'completed':
+            task.status = 'pending'
+        else:
+            task.status = 'completed'
+        task.save()
+        messages.success(request, f"'{task.title}' görevinin durumu güncellendi.")
+        return redirect('tasks')

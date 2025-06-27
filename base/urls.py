@@ -12,7 +12,9 @@ from .views import (
     TaskDependenceListCreateAPI, TaskDependenceDetailAPI,
     HistoryListCreateAPI, HistoryDetailAPI,
     TaskReportListCreateAPI, TaskReportDetailAPI,
-    UserTeamsListCreateAPI, UserTeamsDetailAPI
+    UserTeamsListCreateAPI, UserTeamsDetailAPI,
+    custom_logout,
+    TaskToggleCompleteView
 )
 from django.contrib.auth.views import LogoutView
 from rest_framework_simplejwt.views import (
@@ -22,7 +24,7 @@ from rest_framework_simplejwt.views import (
 
 urlpatterns = [
     path('login/', CustomLoginView.as_view(), name='login'),
-    path('logout/', LogoutView.as_view(next_page='login'), name='logout'),
+    path('logout/', custom_logout, name='logout'),
     path('register/', RegisterPage.as_view(), name='register'),
 
     path('', TaskList.as_view(), name='tasks'),
@@ -31,6 +33,7 @@ urlpatterns = [
     path('task-update/<int:pk>/', TaskUpdate.as_view(), name='task-update'),
     path('task-delete/<int:pk>/', DeleteView.as_view(), name='task-delete'),
     path('task-reorder/', TaskReorder.as_view(), name='task-reorder'),
+    path('task-toggle-complete/<int:pk>/', TaskToggleCompleteView.as_view(), name='task-toggle-complete'),
 
     # REST API endpointleri
     path('api/tasks/', TaskListCreateAPI.as_view(), name='api-task-list-create'),

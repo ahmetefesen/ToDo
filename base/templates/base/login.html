@@ -6,6 +6,11 @@
 </div>
 
 <div class="card-body">
+    {% if messages %}
+        {% for message in messages %}
+            <div style="color: green; margin-bottom: 10px;">{{ message }}</div>
+        {% endfor %}
+    {% endif %}
     <form method="POST">
         {% csrf_token %}
         {{form.as_p}}
@@ -14,10 +19,5 @@
     <p>Don't have an account? <a href="{% url 'register' %}">Register</a></p>
     <p>Admin Panel? <a href="/admin/">Admin Login</a></p>
 </div>
-
-
-
-
-
 
 {% endblock content %}

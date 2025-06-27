@@ -6,6 +6,11 @@
 </div>
 
 <div class="card-body">
+    {% if messages %}
+        {% for message in messages %}
+            <div style="color: green; margin-bottom: 10px;">{{ message }}</div>
+        {% endfor %}
+    {% endif %}
     <form method="POST">
         {% csrf_token %}
         <label>{{form.username.label}}</label>
@@ -13,6 +18,9 @@
 
         <label>{{form.password1.label}}</label>
         {{form.password1}}
+        <div style="font-size: 12px; color: #888; margin-bottom: 8px;">
+            Şifre en az 8 karakter olmalı, harf ve rakam içermelidir.
+        </div>
 
         <label>{{form.password2.label}}</label>
         {{form.password2}}
@@ -21,8 +29,5 @@
     <p>Already have an account? <a href="{% url 'login' %}">Login</a></p>
     <p>Admin Panel? <a href="/admin/">Admin Login</a></p>
 </div>
-
-
-
 
 {% endblock content %}

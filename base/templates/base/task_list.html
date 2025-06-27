@@ -42,10 +42,18 @@
     {% for task in tasks %}
     <div class="task-wrapper" data-position="{{task.pk}}">
         <div class="task-title">
-            {% if task.complete %}
-            <div class="task-complete-icon"></div>
+            <form method="POST" action="{% url 'task-toggle-complete' task.id %}" style="display:inline;">
+                {% csrf_token %}
+                <button type="submit" style="background:none; border:none; cursor:pointer;">
+                    {% if task.status == 'completed' %}
+                        <div class="task-complete-icon"></div>
+                    {% else %}
+                        <div class="task-incomplete-icon"></div>
+                    {% endif %}
+                </button>
+            </form>
+            {% if task.status == 'completed' %}
             <i><s><a href="{% url 'task-update' task.id %}">{{task}}</a></s></i> {% else %}
-            <div class="task-incomplete-icon"></div>
             <a href="{% url 'task-update' task.id %}">{{task}}</a> {% endif %}
         </div>
         <div class="task-controls">
