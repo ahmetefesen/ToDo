@@ -77,7 +77,14 @@ class RegisterPage(FormView):
     def post(self, request, *args, **kwargs):
         if request.content_type == 'application/json':
             import json
+            from django.http import JsonResponse
             data = json.loads(request.body)
+            
+            # Frontend'den gelen password'ü password1 ve password2'ye dönüştür
+            if 'password' in data and 'password2' not in data:
+                data['password1'] = data['password']
+                data['password2'] = data['password']
+            
             form = self.form_class(data)
             if form.is_valid():
                 user = form.save()
@@ -288,25 +295,33 @@ class TaskListCreateAPI(generics.ListCreateAPIView):
         return Task.objects.filter(user=self.request.user)
 
     def perform_create(self, serializer):
-        serializer.save(user=self.request.user)
-        # Log API görev oluşturma
-        OperationLogger.log_task_created(
-            self.request.user, 
-            serializer.instance.title, 
-            get_client_ip(self.request)
-        )
+        task = serializer.save(user=self.request.user)
+        # Log API görev oluşturma - hata olursa işlemi durdurma
+        try:
+            OperationLogger.log_task_created(
+                self.request.user, 
+                task.title, 
+                get_client_ip(self.request)
+            )
+        except Exception as log_error:
+            # Log hatası işlemi durdurmamalı
+            print(f"Log hatası: {log_error}")
 
     def list(self, request, *args, **kwargs):
         """API list endpoint"""
         try:
             response = super().list(request, *args, **kwargs)
-            # Log API erişimi
-            OperationLogger.log_api_access(
-                request.user, 
-                'API Task List', 
-                'GET', 
-                get_client_ip(request)
-            )
+            # Log API erişimi - hata olursa işlemi durdurma
+            try:
+                OperationLogger.log_api_access(
+                    request.user, 
+                    'API Task List', 
+                    'GET', 
+                    get_client_ip(request)
+                )
+            except Exception as log_error:
+                # Log hatası işlemi durdurmamalı
+                print(f"Log hatası: {log_error}")
             return response
         except Exception as e:
             ErrorLogger.log_system_error(str(e), get_client_ip(request))
@@ -327,13 +342,17 @@ class TaskDetailAPI(generics.RetrieveUpdateDestroyAPIView):
         """API update endpoint"""
         try:
             response = super().update(request, *args, **kwargs)
-            # Log API görev güncelleme
-            OperationLogger.log_task_updated(
-                request.user, 
-                self.get_object().title, 
-                "API üzerinden güncellendi", 
-                get_client_ip(request)
-            )
+            # Log API görev güncelleme - hata olursa işlemi durdurma
+            try:
+                OperationLogger.log_task_updated(
+                    request.user, 
+                    self.get_object().title, 
+                    "API üzerinden güncellendi", 
+                    get_client_ip(request)
+                )
+            except Exception as log_error:
+                # Log hatası işlemi durdurmamalı
+                print(f"Log hatası: {log_error}")
             return response
         except Exception as e:
             ErrorLogger.log_system_error(str(e), get_client_ip(request))
@@ -347,12 +366,16 @@ class TaskDetailAPI(generics.RetrieveUpdateDestroyAPIView):
             
             response = super().destroy(request, *args, **kwargs)
             
-            # Log API görev silme
-            OperationLogger.log_task_deleted(
-                request.user, 
-                task_title, 
-                get_client_ip(request)
-            )
+            # Log API görev silme - hata olursa işlemi durdurma
+            try:
+                OperationLogger.log_task_deleted(
+                    request.user, 
+                    task_title, 
+                    get_client_ip(request)
+                )
+            except Exception as log_error:
+                # Log hatası işlemi durdurmamalı
+                print(f"Log hatası: {log_error}")
             
             return response
         except Exception as e:
@@ -481,16 +504,64 @@ class UserTeamsDetailAPI(generics.RetrieveUpdateDestroyAPIView):
     permission_classes = [permissions.IsAuthenticated]
 
 def custom_logout(request):
+    # Mesajları temizle
+    from django.contrib.messages import get_messages
+    storage = get_messages(request)
+    storage.used = True
+    
     logout(request)
     return redirect('login')
 
 class TaskToggleCompleteView(LoginRequiredMixin, View):
     def post(self, request, pk):
-        task = Task.objects.get(pk=pk, user=request.user)
-        if task.status == 'completed':
-            task.status = 'pending'
-        else:
-            task.status = 'completed'
-        task.save()
-        messages.success(request, f"'{task.title}' görevinin durumu güncellendi.")
-        return redirect('tasks')
+        try:
+            # Admin kullanıcıları tüm görevleri görebilir
+            if request.user.is_staff or request.user.is_superuser:
+                task = Task.objects.get(pk=pk)
+            else:
+                task = Task.objects.get(pk=pk, user=request.user)
+            
+            if task.status == 'completed':
+                task.status = 'pending'
+            else:
+                task.status = 'completed'
+            task.save()
+            
+            # Log görev durumu değişikliği - hata olursa işlemi durdurma
+            try:
+                OperationLogger.log_task_updated(
+                    request.user, 
+                    task.title, 
+                    f"Durum {task.status} olarak değiştirildi", 
+                    get_client_ip(request)
+                )
+            except Exception as log_error:
+                # Log hatası işlemi durdurmamalı
+                print(f"Log hatası: {log_error}")
+            
+            # API isteği ise JSON döndür
+            if request.content_type == 'application/json':
+                from django.http import JsonResponse
+                return JsonResponse({
+                    'success': True, 
+                    'message': f"'{task.title}' görevinin durumu güncellendi.",
+                    'status': task.status
+                })
+            
+            # Template isteği ise mesaj göster ve yönlendir
+            messages.success(request, f"'{task.title}' görevinin durumu güncellendi.")
+            return redirect('tasks')
+            
+        except Task.DoesNotExist:
+            if request.content_type == 'application/json':
+                from django.http import JsonResponse
+                return JsonResponse({'error': 'Görev bulunamadı.'}, status=404)
+            messages.error(request, 'Görev bulunamadı.')
+            return redirect('tasks')
+        except Exception as e:
+            ErrorLogger.log_system_error(str(e), get_client_ip(request))
+            if request.content_type == 'application/json':
+                from django.http import JsonResponse
+                return JsonResponse({'error': 'Bir hata oluştu.'}, status=500)
+            messages.error(request, 'Bir hata oluştu.')
+            return redirect('tasks')

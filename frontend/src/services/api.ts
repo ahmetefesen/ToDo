@@ -49,113 +49,113 @@ export const authAPI = {
 
 // Task API
 export const taskAPI = {
-  getAll: () => api.get('/tasks/'),
-  getById: (id: number) => api.get(`/tasks/${id}/`),
-  create: (taskData: any) => api.post('/tasks/', taskData),
-  update: (id: number, taskData: any) => api.put(`/tasks/${id}/`, taskData),
-  delete: (id: number) => api.delete(`/tasks/${id}/`),
-  toggleComplete: (id: number) => api.post(`/tasks/${id}/toggle/`),
+  getAll: () => api.get('/api/tasks/'),
+  getById: (id: number) => api.get(`/api/tasks/${id}/`),
+  create: (taskData: any) => api.post('/api/tasks/', taskData),
+  update: (id: number, taskData: any) => api.put(`/api/tasks/${id}/`, taskData),
+  delete: (id: number) => api.delete(`/api/tasks/${id}/`),
+  toggleComplete: (id: number) => api.post(`/api/tasks/${id}/toggle/`),
 };
 
 // UserProfile API
 export const userProfileAPI = {
-  getAll: () => api.get('/userprofiles/'),
-  getById: (id: number) => api.get(`/userprofiles/${id}/`),
-  create: (profileData: any) => api.post('/userprofiles/', profileData),
-  update: (id: number, profileData: any) => api.put(`/userprofiles/${id}/`, profileData),
-  delete: (id: number) => api.delete(`/userprofiles/${id}/`),
+  getAll: () => api.get('/api/userprofiles/'),
+  getById: (id: number) => api.get(`/api/userprofiles/${id}/`),
+  create: (profileData: any) => api.post('/api/userprofiles/', profileData),
+  update: (id: number, profileData: any) => api.put(`/api/userprofiles/${id}/`, profileData),
+  delete: (id: number) => api.delete(`/api/userprofiles/${id}/`),
 };
 
 // Team API
 export const teamAPI = {
-  getAll: () => api.get('/teams/'),
-  getById: (id: number) => api.get(`/teams/${id}/`),
-  create: (teamData: any) => api.post('/teams/', teamData),
-  update: (id: number, teamData: any) => api.put(`/teams/${id}/`, teamData),
-  delete: (id: number) => api.delete(`/teams/${id}/`),
+  getAll: () => api.get('/api/teams/'),
+  getById: (id: number) => api.get(`/api/teams/${id}/`),
+  create: (teamData: any) => api.post('/api/teams/', teamData),
+  update: (id: number, teamData: any) => api.put(`/api/teams/${id}/`, teamData),
+  delete: (id: number) => api.delete(`/api/teams/${id}/`),
 };
 
 // TaskComment API
 export const taskCommentAPI = {
-  getAll: () => api.get('/taskcomments/'),
-  getById: (id: number) => api.get(`/taskcomments/${id}/`),
-  create: (commentData: any) => api.post('/taskcomments/', commentData),
-  update: (id: number, commentData: any) => api.put(`/taskcomments/${id}/`, commentData),
-  delete: (id: number) => api.delete(`/taskcomments/${id}/`),
-  getByTask: (taskId: number) => api.get(`/taskcomments/?task=${taskId}`),
+  getAll: () => api.get('/api/taskcomments/'),
+  getById: (id: number) => api.get(`/api/taskcomments/${id}/`),
+  create: (commentData: any) => api.post('/api/taskcomments/', commentData),
+  update: (id: number, commentData: any) => api.put(`/api/taskcomments/${id}/`, commentData),
+  delete: (id: number) => api.delete(`/api/taskcomments/${id}/`),
+  getByTask: (taskId: number) => api.get(`/api/taskcomments/?task=${taskId}`),
 };
 
 // TaskAttachment API
 export const taskAttachmentAPI = {
-  getAll: () => api.get('/taskattachments/'),
-  getById: (id: number) => api.get(`/taskattachments/${id}/`),
-  create: (attachmentData: any) => api.post('/taskattachments/', attachmentData),
-  update: (id: number, attachmentData: any) => api.put(`/taskattachments/${id}/`, attachmentData),
-  delete: (id: number) => api.delete(`/taskattachments/${id}/`),
-  getByTask: (taskId: number) => api.get(`/taskattachments/?task=${taskId}`),
+  getAll: () => api.get('/api/taskattachments/'),
+  getById: (id: number) => api.get(`/api/taskattachments/${id}/`),
+  create: (attachmentData: any) => api.post('/api/taskattachments/', attachmentData),
+  update: (id: number, attachmentData: any) => api.put(`/api/taskattachments/${id}/`, attachmentData),
+  delete: (id: number) => api.delete(`/api/taskattachments/${id}/`),
+  getByTask: (taskId: number) => api.get(`/api/taskattachments/?task=${taskId}`),
 };
 
 // TaskPriority API
 export const taskPriorityAPI = {
-  getAll: () => api.get('/taskpriorities/'),
-  getById: (id: number) => api.get(`/taskpriorities/${id}/`),
-  create: (priorityData: any) => api.post('/taskpriorities/', priorityData),
-  update: (id: number, priorityData: any) => api.put(`/taskpriorities/${id}/`, priorityData),
-  delete: (id: number) => api.delete(`/taskpriorities/${id}/`),
+  getAll: () => api.get('/api/taskpriorities/'),
+  getById: (id: number) => api.get(`/api/taskpriorities/${id}/`),
+  create: (priorityData: any) => api.post('/api/taskpriorities/', priorityData),
+  update: (id: number, priorityData: any) => api.put(`/api/taskpriorities/${id}/`, priorityData),
+  delete: (id: number) => api.delete(`/api/taskpriorities/${id}/`),
 };
 
 // TaskSchedule API
 export const taskScheduleAPI = {
-  getAll: () => api.get('/taskschedules/'),
-  getById: (id: number) => api.get(`/taskschedules/${id}/`),
-  create: (scheduleData: any) => api.post('/taskschedules/', scheduleData),
-  update: (id: number, scheduleData: any) => api.put(`/taskschedules/${id}/`, scheduleData),
-  delete: (id: number) => api.delete(`/taskschedules/${id}/`),
+  getAll: () => api.get('/api/taskschedules/'),
+  getById: (id: number) => api.get(`/api/taskschedules/${id}/`),
+  create: (scheduleData: any) => api.post('/api/taskschedules/', scheduleData),
+  update: (id: number, scheduleData: any) => api.put(`/api/taskschedules/${id}/`, scheduleData),
+  delete: (id: number) => api.delete(`/api/taskschedules/${id}/`),
 };
 
 // TaskRecurrence API
 export const taskRecurrenceAPI = {
-  getAll: () => api.get('/taskrecurrences/'),
-  getById: (id: number) => api.get(`/taskrecurrences/${id}/`),
-  create: (recurrenceData: any) => api.post('/taskrecurrences/', recurrenceData),
-  update: (id: number, recurrenceData: any) => api.put(`/taskrecurrences/${id}/`, recurrenceData),
-  delete: (id: number) => api.delete(`/taskrecurrences/${id}/`),
+  getAll: () => api.get('/api/taskrecurrences/'),
+  getById: (id: number) => api.get(`/api/taskrecurrences/${id}/`),
+  create: (recurrenceData: any) => api.post('/api/taskrecurrences/', recurrenceData),
+  update: (id: number, recurrenceData: any) => api.put(`/api/taskrecurrences/${id}/`, recurrenceData),
+  delete: (id: number) => api.delete(`/api/taskrecurrences/${id}/`),
 };
 
 // TaskDependence API
 export const taskDependenceAPI = {
-  getAll: () => api.get('/taskdependences/'),
-  getById: (id: number) => api.get(`/taskdependences/${id}/`),
-  create: (dependenceData: any) => api.post('/taskdependences/', dependenceData),
-  update: (id: number, dependenceData: any) => api.put(`/taskdependences/${id}/`, dependenceData),
-  delete: (id: number) => api.delete(`/taskdependences/${id}/`),
+  getAll: () => api.get('/api/taskdependences/'),
+  getById: (id: number) => api.get(`/api/taskdependences/${id}/`),
+  create: (dependenceData: any) => api.post('/api/taskdependences/', dependenceData),
+  update: (id: number, dependenceData: any) => api.put(`/api/taskdependences/${id}/`, dependenceData),
+  delete: (id: number) => api.delete(`/api/taskdependences/${id}/`),
 };
 
 // History API
 export const historyAPI = {
-  getAll: () => api.get('/histories/'),
-  getById: (id: number) => api.get(`/histories/${id}/`),
-  create: (historyData: any) => api.post('/histories/', historyData),
-  update: (id: number, historyData: any) => api.put(`/histories/${id}/`, historyData),
-  delete: (id: number) => api.delete(`/histories/${id}/`),
+  getAll: () => api.get('/api/histories/'),
+  getById: (id: number) => api.get(`/api/histories/${id}/`),
+  create: (historyData: any) => api.post('/api/histories/', historyData),
+  update: (id: number, historyData: any) => api.put(`/api/histories/${id}/`, historyData),
+  delete: (id: number) => api.delete(`/api/histories/${id}/`),
 };
 
 // TaskReport API
 export const taskReportAPI = {
-  getAll: () => api.get('/taskreports/'),
-  getById: (id: number) => api.get(`/taskreports/${id}/`),
-  create: (reportData: any) => api.post('/taskreports/', reportData),
-  update: (id: number, reportData: any) => api.put(`/taskreports/${id}/`, reportData),
-  delete: (id: number) => api.delete(`/taskreports/${id}/`),
+  getAll: () => api.get('/api/taskreports/'),
+  getById: (id: number) => api.get(`/api/taskreports/${id}/`),
+  create: (reportData: any) => api.post('/api/taskreports/', reportData),
+  update: (id: number, reportData: any) => api.put(`/api/taskreports/${id}/`, reportData),
+  delete: (id: number) => api.delete(`/api/taskreports/${id}/`),
 };
 
 // UserTeams API
 export const userTeamsAPI = {
-  getAll: () => api.get('/userteams/'),
-  getById: (id: number) => api.get(`/userteams/${id}/`),
-  create: (userTeamData: any) => api.post('/userteams/', userTeamData),
-  update: (id: number, userTeamData: any) => api.put(`/userteams/${id}/`, userTeamData),
-  delete: (id: number) => api.delete(`/userteams/${id}/`),
+  getAll: () => api.get('/api/userteams/'),
+  getById: (id: number) => api.get(`/api/userteams/${id}/`),
+  create: (userTeamData: any) => api.post('/api/userteams/', userTeamData),
+  update: (id: number, userTeamData: any) => api.put(`/api/userteams/${id}/`, userTeamData),
+  delete: (id: number) => api.delete(`/api/userteams/${id}/`),
 };
 
 export default api;

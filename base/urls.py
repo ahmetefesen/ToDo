@@ -38,6 +38,7 @@ urlpatterns = [
     # REST API endpointleri
     path('api/tasks/', TaskListCreateAPI.as_view(), name='api-task-list-create'),
     path('api/tasks/<int:pk>/', TaskDetailAPI.as_view(), name='api-task-detail'),
+    path('api/tasks/<int:pk>/toggle/', TaskToggleCompleteView.as_view(), name='api-task-toggle'),
 
     path('api/userprofiles/', UserProfileListCreateAPI.as_view(), name='api-userprofile-list-create'),
     path('api/userprofiles/<int:pk>/', UserProfileDetailAPI.as_view(), name='api-userprofile-detail'),

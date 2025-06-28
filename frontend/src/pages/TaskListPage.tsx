@@ -64,7 +64,16 @@ const TaskListPage: React.FC = () => {
       setShowCreateForm(false);
       fetchTasks();
     } catch (err: any) {
-      setError('Görev oluşturulurken bir hata oluştu');
+      console.error('Task oluşturma hatası:', err);
+      let errorMsg = 'Görev oluşturulurken bir hata oluştu';
+      if (err.response?.data) {
+        if (typeof err.response.data === 'string') {
+          errorMsg = err.response.data;
+        } else if (typeof err.response.data === 'object') {
+          errorMsg = Object.values(err.response.data).flat().join(' ');
+        }
+      }
+      setError(errorMsg);
     }
   };
 
@@ -74,7 +83,16 @@ const TaskListPage: React.FC = () => {
         await taskAPI.delete(id);
         fetchTasks();
       } catch (err: any) {
-        setError('Görev silinirken bir hata oluştu');
+        console.error('Task silme hatası:', err);
+        let errorMsg = 'Görev silinirken bir hata oluştu';
+        if (err.response?.data) {
+          if (typeof err.response.data === 'string') {
+            errorMsg = err.response.data;
+          } else if (typeof err.response.data === 'object') {
+            errorMsg = Object.values(err.response.data).flat().join(' ');
+          }
+        }
+        setError(errorMsg);
       }
     }
   };
@@ -85,7 +103,16 @@ const TaskListPage: React.FC = () => {
       await taskAPI.update(task.id, { ...task, status: newStatus });
       fetchTasks();
     } catch (err: any) {
-      setError('Görev durumu güncellenirken bir hata oluştu');
+      console.error('Task durum güncelleme hatası:', err);
+      let errorMsg = 'Görev durumu güncellenirken bir hata oluştu';
+      if (err.response?.data) {
+        if (typeof err.response.data === 'string') {
+          errorMsg = err.response.data;
+        } else if (typeof err.response.data === 'object') {
+          errorMsg = Object.values(err.response.data).flat().join(' ');
+        }
+      }
+      setError(errorMsg);
     }
   };
 

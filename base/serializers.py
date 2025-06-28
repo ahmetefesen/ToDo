@@ -38,8 +38,8 @@ class TaskSerializer(serializers.ModelSerializer):
 
     def validate_description(self, value):
         """Description validation"""
-        if value and len(value.strip()) < 10:
-            raise serializers.ValidationError("Açıklama en az 10 karakter olmalıdır.")
+        if value and len(value.strip()) < 3:
+            raise serializers.ValidationError("Açıklama en az 3 karakter olmalıdır.")
         return value.strip() if value else value
 
     def validate_due_date(self, value):
