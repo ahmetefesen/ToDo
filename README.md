@@ -11,7 +11,9 @@ Bu proje, Django REST Framework backend'i ve React TypeScript frontend'i ile gel
 - **Logging System**: Detaylı log kayıtları
 - **API Versioning**: v1 API desteği
 - **Security**: CORS, XSS, CSRF koruması
-- **Database**: SQLite (Development) / PostgreSQL (Production)
+- **Database**: PostgreSQL (Production) / SQLite (Development)
+- **Admin Panel**: Özelleştirilmiş Django admin arayüzü
+- **JWT Blacklist**: Token güvenliği için blacklist sistemi
 
 ### Frontend (React + TypeScript)
 - **Modern UI**: Responsive ve kullanıcı dostu arayüz
@@ -29,6 +31,7 @@ Bu proje, Django REST Framework backend'i ve React TypeScript frontend'i ile gel
 - Django REST Framework
 - Django CORS Headers
 - Django REST Framework Simple JWT
+- PostgreSQL (Production)
 
 ### Frontend
 - Node.js 14+
@@ -154,6 +157,7 @@ DATABASES = {
 - Refresh token: 1 gün
 - Otomatik token yenileme
 - Token doğrulama
+- JWT Blacklist sistemi
 
 ### CORS Ayarları
 - Sadece güvenli origin'ler
@@ -165,6 +169,11 @@ DATABASES = {
 - Serializer seviyesinde validation
 - XSS koruması
 - SQL injection koruması
+
+### Admin Panel Güvenliği
+- Admin kullanıcıları sadece kendi eylemlerini görebilir
+- Log kayıtları filtrelenmiş
+- Güvenli admin arayüzü
 
 ## 📊 Logging
 
@@ -239,6 +248,7 @@ Django-To-Do-list-with-user-authentication/
 │   ├── views.py            # API view'ları
 │   ├── serializers.py      # API serializer'ları
 │   ├── urls.py             # URL routing
+│   ├── admin.py            # Admin panel konfigürasyonu
 │   └── utils.py            # Utility fonksiyonları
 ├── frontend/               # React frontend
 │   ├── src/
@@ -274,16 +284,32 @@ Herhangi bir sorun yaşarsanız:
 
 ## 🔄 Güncellemeler
 
-### v1.0.0
-- İlk sürüm
-- Temel CRUD işlemleri
-- JWT authentication
-- React frontend
+### v1.2.0 (Güncel)
+- **Django Template'ler Kaldırıldı**: Template tabanlı view'lar kaldırıldı, sadece API view'ları bırakıldı
+- **API Odaklı Yapı**: Backend tamamen API odaklı hale getirildi
+- **Admin Panel Güvenliği**: Admin kullanıcıları sadece kendi eylemlerini görebilir
+- **Frontend TypeScript Düzeltmeleri**: Tip uyumsuzlukları giderildi
+- **PostgreSQL Aktif**: Production için PostgreSQL ayarları aktif hale getirildi
+- **JWT Blacklist**: Token güvenliği için blacklist sistemi eklendi
+- **URL Yapılandırması**: Template URL'leri kaldırıldı, sadece API URL'leri bırakıldı
 
 ### v1.1.0
 - API versioning eklendi
 - Enhanced error handling
 - TypeScript type definitions
 - Security improvements
+
+### v1.0.0
+- İlk sürüm
+- Temel CRUD işlemleri
+- JWT authentication
+- React frontend
+
+## ⚠️ Önemli Notlar
+
+- **Template Dosyaları**: Django template dosyaları kaldırılmıştır. Uygulama artık tamamen API odaklıdır.
+- **Admin Panel**: Sadece admin kullanıcıları admin paneline erişebilir ve sadece kendi eylemlerini görebilir.
+- **Veritabanı**: Production ortamında PostgreSQL kullanılması önerilir.
+- **Token Güvenliği**: JWT blacklist sistemi aktif olarak kullanılmaktadır.
 
 
