@@ -8,7 +8,7 @@ from django.utils.decorators import method_decorator
 
 from rest_framework import generics, permissions
 from .serializers import (
-    TaskSerializer, UserProfileSerializer, TeamSerializer, TaskCommentSerializer, TaskAttachmentSerializer, TaskPrioritySerializer, TaskScheduleSerializer, TaskRecurrenceSerializer, TaskDependenceSerializer, HistorySerializer, TaskReportSerializer, UserTeamsSerializer
+    TaskSerializer, UserProfileSerializer, TeamSerializer, TaskCommentSerializer, TaskAttachmentSerializer, TaskPrioritySerializer, TaskScheduleSerializer, TaskRecurrenceSerializer, TaskDependenceSerializer, HistorySerializer, TaskReportSerializer, UserTeamsSerializer, RegisterSerializer
 )
 from .models import (
     Task, UserProfile, Team, TaskComment, TaskAttachment, TaskPriority, TaskSchedule, TaskRecurrence, TaskDependence, History, TaskReport, UserTeams
@@ -16,6 +16,8 @@ from .models import (
 
 # Logging imports
 from .utils import SecurityLogger, OperationLogger, ErrorLogger
+from rest_framework.response import Response
+from rest_framework import status
 
 def get_client_ip(request):
     """Client IP adresini al"""
@@ -243,3 +245,18 @@ class UserTeamsDetailAPI(generics.RetrieveUpdateDestroyAPIView):
     queryset = UserTeams.objects.all()
     serializer_class = UserTeamsSerializer
     permission_classes = [permissions.IsAuthenticated]
+
+class RegisterAPIView(generics.CreateAPIView):
+    serializer_class = RegisterSerializer
+    permission_classes = [permissions.AllowAny]
+
+    def post(self, request, *args, **kwargs):
+        serializer = self.get_serializer(data=request.data)
+        if serializer.is_valid():
+            user = serializer.save()
+            return Response({
+                'id': user.id,
+                'username': user.username,
+                'email': user.email
+            }, status=status.HTTP_201_CREATED)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)

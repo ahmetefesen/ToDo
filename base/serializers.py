@@ -190,4 +190,19 @@ class UserTeamsSerializer(serializers.ModelSerializer):
         # Aynı kullanıcı aynı takıma birden fazla kez eklenemez
         if UserTeams.objects.filter(user=data.get('user'), team=data.get('team')).exists():
             raise serializers.ValidationError("Bu kullanıcı zaten bu takımda bulunuyor.")
-        return data 
+        return data
+
+class RegisterSerializer(serializers.ModelSerializer):
+    password = serializers.CharField(write_only=True, min_length=8)
+
+    class Meta:
+        model = User
+        fields = ['username', 'email', 'password']
+
+    def create(self, validated_data):
+        user = User.objects.create_user(
+            username=validated_data['username'],
+            email=validated_data.get('email', ''),
+            password=validated_data['password']
+        )
+        return user 

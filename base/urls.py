@@ -12,6 +12,7 @@ from .views import (
     HistoryListCreateAPI, HistoryDetailAPI,
     TaskReportListCreateAPI, TaskReportDetailAPI,
     UserTeamsListCreateAPI, UserTeamsDetailAPI,
+    RegisterAPIView,
 )
 from rest_framework_simplejwt.views import (
     TokenObtainPairView,
@@ -57,6 +58,8 @@ api_v1_patterns = [
 
     path('userteams/', UserTeamsListCreateAPI.as_view(), name='api-userteams-list-create'),
     path('userteams/<int:pk>/', UserTeamsDetailAPI.as_view(), name='api-userteams-detail'),
+
+    path('register/', RegisterAPIView.as_view(), name='api-register'),
 ]
 
 urlpatterns = [
