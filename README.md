@@ -91,7 +91,7 @@ Backend için `.env` dosyası oluşturun:
 ```env
 DEBUG=True
 SECRET_KEY=your-secret-key
-DATABASE_URL=sqlite:///db.sqlite3
+DATABASE_URL=postgresql://ornek_kullanici:Ahmetefe@localhost:5432/todo
 ALLOWED_HOSTS=localhost,127.0.0.1
 CORS_ALLOWED_ORIGINS=http://localhost:3000
 ```

@@ -1,18 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import { taskAPI, authAPI } from '../services/api';
+import { Task, CreateTaskData, UpdateTaskData } from '../types';
 import './TaskListPage.css';
-
-interface Task {
-  id: number;
-  title: string;
-  description: string;
-  status: string;
-  priority: string;
-  due_date: string;
-  created: string;
-  user: number;
-}
 
 const TaskListPage: React.FC = () => {
   const [tasks, setTasks] = useState<Task[]>([]);
@@ -23,8 +13,8 @@ const TaskListPage: React.FC = () => {
   const [newTask, setNewTask] = useState({
     title: '',
     description: '',
-    status: 'pending',
-    priority: 'medium',
+    status: 'pending' as 'pending' | 'in_progress' | 'completed' | 'cancelled',
+    priority: 'medium' as 'low' | 'medium' | 'high' | 'critical',
     due_date: '',
   });
   const navigate = useNavigate();
@@ -53,12 +43,19 @@ const TaskListPage: React.FC = () => {
   const handleCreateTask = async (e: React.FormEvent) => {
     e.preventDefault();
     try {
-      await taskAPI.create(newTask);
+      const createData: CreateTaskData = {
+        title: newTask.title,
+        description: newTask.description,
+        status: newTask.status,
+        priority: newTask.priority,
+        due_date: newTask.due_date || undefined,
+      };
+      await taskAPI.create(createData);
       setNewTask({
         title: '',
         description: '',
-        status: 'pending',
-        priority: 'medium',
+        status: 'pending' as 'pending' | 'in_progress' | 'completed' | 'cancelled',
+        priority: 'medium' as 'low' | 'medium' | 'high' | 'critical',
         due_date: '',
       });
       setShowCreateForm(false);
@@ -100,7 +97,14 @@ const TaskListPage: React.FC = () => {
   const handleToggleComplete = async (task: Task) => {
     try {
       const newStatus = task.status === 'completed' ? 'pending' : 'completed';
-      await taskAPI.update(task.id, { ...task, status: newStatus });
+      const updateData: UpdateTaskData = {
+        title: task.title,
+        description: task.description,
+        status: newStatus,
+        priority: task.priority,
+        due_date: task.due_date || undefined,
+      };
+      await taskAPI.update(task.id, updateData);
       fetchTasks();
     } catch (err: any) {
       console.error('Task durum güncelleme hatası:', err);
@@ -132,8 +136,9 @@ const TaskListPage: React.FC = () => {
 
   const getPriorityColor = (priority: string) => {
     switch (priority) {
-      case 'high': return 'red';
-      case 'medium': return 'orange';
+      case 'critical': return 'red';
+      case 'high': return 'orange';
+      case 'medium': return 'yellow';
       case 'low': return 'green';
       default: return 'gray';
     }
@@ -192,22 +197,24 @@ const TaskListPage: React.FC = () => {
                 <label>Durum</label>
                 <select
                   value={newTask.status}
-                  onChange={(e) => setNewTask({ ...newTask, status: e.target.value })}
+                  onChange={(e) => setNewTask({ ...newTask, status: e.target.value as 'pending' | 'in_progress' | 'completed' | 'cancelled' })}
                 >
                   <option value="pending">Bekliyor</option>
                   <option value="in_progress">Devam Ediyor</option>
                   <option value="completed">Tamamlandı</option>
+                  <option value="cancelled">İptal</option>
                 </select>
               </div>
               <div className="form-group">
                 <label>Öncelik</label>
                 <select
                   value={newTask.priority}
-                  onChange={(e) => setNewTask({ ...newTask, priority: e.target.value })}
+                  onChange={(e) => setNewTask({ ...newTask, priority: e.target.value as 'low' | 'medium' | 'high' | 'critical' })}
                 >
                   <option value="low">Düşük</option>
                   <option value="medium">Orta</option>
                   <option value="high">Yüksek</option>
+                  <option value="critical">Kritik</option>
                 </select>
               </div>
               <div className="form-group">
@@ -251,10 +258,12 @@ const TaskListPage: React.FC = () => {
             <div className="task-meta">
               <span className={`status status-${getStatusColor(task.status)}`}>
                 {task.status === 'completed' ? 'Tamamlandı' : 
-                 task.status === 'in_progress' ? 'Devam Ediyor' : 'Bekliyor'}
+                 task.status === 'in_progress' ? 'Devam Ediyor' : 
+                 task.status === 'cancelled' ? 'İptal Edildi' : 'Bekliyor'}
               </span>
               <span className={`priority priority-${getPriorityColor(task.priority)}`}>
-                {task.priority === 'high' ? 'Yüksek' : 
+                {task.priority === 'critical' ? 'Kritik' :
+                 task.priority === 'high' ? 'Yüksek' : 
                  task.priority === 'medium' ? 'Orta' : 'Düşük'}
               </span>
             </div>

@@ -1,7 +1,6 @@
 from django.urls import path, include
 from .views import (
-    TaskList, TaskDetail, TaskCreate, TaskUpdate, DeleteView, CustomLoginView, RegisterPage, TaskReorder,
-    TaskListCreateAPI, TaskDetailAPI,
+    TaskListCreateAPI, TaskDetailAPI, TaskToggleCompleteView,
     UserProfileListCreateAPI, UserProfileDetailAPI,
     TeamListCreateAPI, TeamDetailAPI,
     TaskCommentListCreateAPI, TaskCommentDetailAPI,
@@ -13,10 +12,7 @@ from .views import (
     HistoryListCreateAPI, HistoryDetailAPI,
     TaskReportListCreateAPI, TaskReportDetailAPI,
     UserTeamsListCreateAPI, UserTeamsDetailAPI,
-    custom_logout,
-    TaskToggleCompleteView
 )
-from django.contrib.auth.views import LogoutView
 from rest_framework_simplejwt.views import (
     TokenObtainPairView,
     TokenRefreshView,
@@ -64,18 +60,6 @@ api_v1_patterns = [
 ]
 
 urlpatterns = [
-    path('login/', CustomLoginView.as_view(), name='login'),
-    path('logout/', custom_logout, name='logout'),
-    path('register/', RegisterPage.as_view(), name='register'),
-
-    path('', TaskList.as_view(), name='tasks'),
-    path('task/<int:pk>/', TaskDetail.as_view(), name='task'),
-    path('task-create/', TaskCreate.as_view(), name='task-create'),
-    path('task-update/<int:pk>/', TaskUpdate.as_view(), name='task-update'),
-    path('task-delete/<int:pk>/', DeleteView.as_view(), name='task-delete'),
-    path('task-reorder/', TaskReorder.as_view(), name='task-reorder'),
-    path('task-toggle-complete/<int:pk>/', TaskToggleCompleteView.as_view(), name='task-toggle-complete'),
-
     # REST API endpoints with versioning
     path('api/v1/', include(api_v1_patterns)),
     
@@ -121,5 +105,4 @@ urlpatterns = [
     path('api/token/', TokenObtainPairView.as_view(), name='token_obtain_pair'),
     path('api/token/refresh/', TokenRefreshView.as_view(), name='token_refresh'),
     path('api/token/verify/', TokenVerifyView.as_view(), name='token_verify'),
-    path('api/register/', RegisterPage.as_view(), name='api_register'),
 ]

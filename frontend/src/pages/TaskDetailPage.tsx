@@ -1,18 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate, Link } from 'react-router-dom';
 import { taskAPI } from '../services/api';
+import { Task, UpdateTaskData } from '../types';
 import './TaskDetailPage.css';
-
-interface Task {
-  id: number;
-  title: string;
-  description: string;
-  status: string;
-  priority: string;
-  due_date: string;
-  created: string;
-  user: number;
-}
 
 const TaskDetailPage: React.FC = () => {
   const { id } = useParams<{ id: string }>();
@@ -57,7 +47,14 @@ const TaskDetailPage: React.FC = () => {
     
     try {
       const newStatus = task.status === 'completed' ? 'pending' : 'completed';
-      await taskAPI.update(task.id, { ...task, status: newStatus });
+      const updateData: UpdateTaskData = {
+        title: task.title,
+        description: task.description,
+        status: newStatus,
+        priority: task.priority,
+        due_date: task.due_date || undefined,
+      };
+      await taskAPI.update(task.id, updateData);
       fetchTask(task.id);
     } catch (err: any) {
       setError('Görev durumu güncellenirken bir hata oluştu');
@@ -78,6 +75,7 @@ const TaskDetailPage: React.FC = () => {
       case 'high': return 'Yüksek';
       case 'medium': return 'Orta';
       case 'low': return 'Düşük';
+      case 'critical': return 'Kritik';
       default: return priority;
     }
   };
@@ -127,7 +125,7 @@ const TaskDetailPage: React.FC = () => {
 
             <div className="info-item">
               <label>Oluşturulma Tarihi:</label>
-              <span>{new Date(task.created).toLocaleDateString('tr-TR')}</span>
+              <span>{new Date(task.created_at).toLocaleDateString('tr-TR')}</span>
             </div>
 
             {task.due_date && (

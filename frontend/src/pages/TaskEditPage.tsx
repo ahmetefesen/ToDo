@@ -1,18 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { taskAPI } from '../services/api';
+import { Task, UpdateTaskData } from '../types';
 import './TaskEditPage.css';
-
-interface Task {
-  id: number;
-  title: string;
-  description: string;
-  status: string;
-  priority: string;
-  due_date: string;
-  created: string;
-  user: number;
-}
 
 const TaskEditPage: React.FC = () => {
   const { id } = useParams<{ id: string }>();
@@ -20,8 +10,8 @@ const TaskEditPage: React.FC = () => {
   const [formData, setFormData] = useState({
     title: '',
     description: '',
-    status: 'pending',
-    priority: 'medium',
+    status: 'pending' as 'pending' | 'in_progress' | 'completed' | 'cancelled',
+    priority: 'medium' as 'low' | 'medium' | 'high' | 'critical',
     due_date: '',
   });
   const [loading, setLoading] = useState(true);
@@ -69,7 +59,14 @@ const TaskEditPage: React.FC = () => {
     setError('');
 
     try {
-      await taskAPI.update(task.id, formData);
+      const updateData: UpdateTaskData = {
+        title: formData.title,
+        description: formData.description,
+        status: formData.status,
+        priority: formData.priority,
+        due_date: formData.due_date || undefined,
+      };
+      await taskAPI.update(task.id, updateData);
       navigate(`/tasks/${task.id}`);
     } catch (err: any) {
       setError('Görev güncellenirken bir hata oluştu');
@@ -139,6 +136,7 @@ const TaskEditPage: React.FC = () => {
               <option value="pending">Bekliyor</option>
               <option value="in_progress">Devam Ediyor</option>
               <option value="completed">Tamamlandı</option>
+              <option value="cancelled">İptal Edildi</option>
             </select>
           </div>
 
@@ -153,6 +151,7 @@ const TaskEditPage: React.FC = () => {
               <option value="low">Düşük</option>
               <option value="medium">Orta</option>
               <option value="high">Yüksek</option>
+              <option value="critical">Kritik</option>
             </select>
           </div>
 

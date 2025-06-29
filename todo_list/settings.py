@@ -39,6 +39,7 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'rest_framework',
+    'rest_framework_simplejwt.token_blacklist',
     'corsheaders',
     'base.apps.BaseConfig',
     'todo_list',
@@ -79,25 +80,25 @@ WSGI_APPLICATION = 'todo_list.wsgi.application'
 # Database
 # https://docs.djangoproject.com/en/3.0/ref/settings/#databases
 
-DATABASES = {
-    'default': {
-        'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': os.path.join(BASE_DIR, 'db.sqlite3'),
-    }
-}
-
-# Production Database (PostgreSQL) - Uncomment for production
+# Development Database (SQLite3) - Commented out for PostgreSQL
 # DATABASES = {
 #     'default': {
-#         'ENGINE': 'django.db.backends.postgresql',
-#         'NAME': 'todo',
-#         'USER': 'ornek_kullanici',
-#         'PASSWORD': 'Ahmetefe',
-#         'HOST': 'localhost',
-#         'PORT': '5432',
+#         'ENGINE': 'django.db.backends.sqlite3',
+#         'NAME': os.path.join(BASE_DIR, 'db.sqlite3'),
 #     }
 # }
 
+# Production Database (PostgreSQL) - Active
+DATABASES = {
+    'default': {
+        'ENGINE': 'django.db.backends.postgresql',
+        'NAME': 'todo',
+        'USER': 'ornek_kullanici',
+        'PASSWORD': 'Ahmetefe',
+        'HOST': 'localhost',
+        'PORT': '5432',
+    }
+}
 
 # Password validation
 # https://docs.djangoproject.com/en/3.0/ref/settings/#auth-password-validators
@@ -259,3 +260,18 @@ LOGGING = {
 logs_dir = os.path.join(BASE_DIR, 'logs')
 if not os.path.exists(logs_dir):
     os.makedirs(logs_dir)
+
+# Admin Panel Logging Settings
+ADMIN_LOG_ENTRIES = True
+ADMIN_LOG_ENTRIES_LIMIT = 50
+
+# Admin panelinde sadece admin kullanıcılarının eylemlerini göster
+ADMIN_SITE_HEADER = "Todo App Admin"
+ADMIN_SITE_TITLE = "Todo App Admin Portal"
+ADMIN_INDEX_TITLE = "Todo App Yönetim Paneli"
+
+# Admin panelinde log filtreleme
+ADMIN_LOG_FILTER = {
+    'user__is_staff': True,  # Sadece staff kullanıcıların eylemleri
+    'user__is_superuser': True,  # Sadece superuser'ların eylemleri
+}
