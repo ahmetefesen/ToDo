@@ -44,10 +44,10 @@ class TaskListCreateAPI(generics.ListCreateAPIView):
         serializer.save(user=self.request.user)
         # Log görev oluşturma
         OperationLogger.log_task_created(
-            self.request.user, 
+                self.request.user, 
             serializer.instance.title, 
-            get_client_ip(self.request)
-        )
+                get_client_ip(self.request)
+            )
 
     def list(self, request, *args, **kwargs):
         """Liste görüntüleme"""
@@ -55,11 +55,11 @@ class TaskListCreateAPI(generics.ListCreateAPIView):
             response = super().list(request, *args, **kwargs)
             # Log API erişimi
             OperationLogger.log_api_access(
-                request.user, 
+                    request.user, 
                 'Task List', 
-                'GET', 
-                get_client_ip(request)
-            )
+                    'GET', 
+                    get_client_ip(request)
+                )
             return response
         except Exception as e:
             ErrorLogger.log_system_error(str(e), get_client_ip(request))
@@ -104,11 +104,11 @@ class TaskDetailAPI(generics.RetrieveUpdateDestroyAPIView):
             changes_str = ", ".join(changes) if changes else "Değişiklik yok"
             # Log görev güncelleme
             OperationLogger.log_task_updated(
-                request.user, 
+                    request.user, 
                 new_task.title, 
                 changes_str, 
-                get_client_ip(request)
-            )
+                    get_client_ip(request)
+                )
             return response
         except Exception as e:
             ErrorLogger.log_system_error(str(e), get_client_ip(request))
@@ -122,10 +122,10 @@ class TaskDetailAPI(generics.RetrieveUpdateDestroyAPIView):
             response = super().destroy(request, *args, **kwargs)
             # Log görev silme
             OperationLogger.log_task_deleted(
-                request.user, 
-                task_title, 
-                get_client_ip(request)
-            )
+                    request.user, 
+                    task_title, 
+                    get_client_ip(request)
+                )
             return response
         except Exception as e:
             ErrorLogger.log_system_error(str(e), get_client_ip(request))

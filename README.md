@@ -1,6 +1,6 @@
 # Todo List Uygulaması
 
-Bu proje, Django REST Framework backend'i ve React TypeScript frontend'i ile geliştirilmiş kapsamlı bir todo list uygulamasıdır.
+Bu proje, Django REST Framework backend'i ve React TypeScript frontend'i ile geliştirilmiş kapsamlı bir task management uygulamasıdır.
 
 ## 🚀 Özellikler
 
