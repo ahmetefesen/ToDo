@@ -1,6 +1,28 @@
 import axios from 'axios';
+import {
+  Task,
+  CreateTaskData,
+  UpdateTaskData,
+  UserProfile,
+  Team,
+  TaskComment,
+  TaskAttachment,
+  TaskPriority,
+  TaskSchedule,
+  TaskRecurrence,
+  TaskDependence,
+  History,
+  TaskReport,
+  UserTeams,
+  LoginCredentials,
+  RegisterData,
+  TokenResponse,
+  ApiResponse,
+  PaginatedResponse
+} from '../types';
 
 const API_BASE_URL = 'http://localhost:8000';
+const API_VERSION = 'v1';
 
 // Axios instance oluştur
 const api = axios.create({
@@ -8,6 +30,7 @@ const api = axios.create({
   headers: {
     'Content-Type': 'application/json',
   },
+  timeout: 10000, // 10 saniye timeout
 });
 
 // Request interceptor - JWT token ekle
@@ -36,126 +59,622 @@ api.interceptors.response.use(
   }
 );
 
+// Error handling utility
+const handleApiError = (error: any): string => {
+  if (error.response?.data) {
+    if (typeof error.response.data === 'string') {
+      return error.response.data;
+    } else if (typeof error.response.data === 'object') {
+      return Object.values(error.response.data).flat().join(' ');
+    }
+  }
+  return error.message || 'Bir hata oluştu';
+};
+
 // Auth API
 export const authAPI = {
-  login: (credentials: { username: string; password: string }) =>
-    api.post('/api/token/', credentials),
-  register: (userData: { username: string; password: string; email?: string }) =>
-    api.post('/api/register/', userData),
+  login: async (credentials: LoginCredentials): Promise<ApiResponse<TokenResponse>> => {
+    try {
+      const response = await api.post('/api/token/', credentials);
+      const data = response.data as TokenResponse;
+      localStorage.setItem('token', data.access);
+      localStorage.setItem('refresh_token', data.refresh);
+      return response as ApiResponse<TokenResponse>;
+    } catch (error) {
+      throw new Error(handleApiError(error));
+    }
+  },
+  register: async (userData: RegisterData): Promise<ApiResponse> => {
+    try {
+      const response = await api.post('/api/register/', userData);
+      return response as ApiResponse;
+    } catch (error) {
+      throw new Error(handleApiError(error));
+    }
+  },
+  refreshToken: async (): Promise<ApiResponse<{ access: string }>> => {
+    try {
+      const refreshToken = localStorage.getItem('refresh_token');
+      if (!refreshToken) throw new Error('Refresh token bulunamadı');
+      
+      const response = await api.post('/api/token/refresh/', { refresh: refreshToken });
+      const data = response.data as { access: string };
+      localStorage.setItem('token', data.access);
+      return response as ApiResponse<{ access: string }>;
+    } catch (error) {
+      localStorage.removeItem('token');
+      localStorage.removeItem('refresh_token');
+      window.location.href = '/login';
+      throw new Error(handleApiError(error));
+    }
+  },
+  verifyToken: async (): Promise<ApiResponse> => {
+    try {
+      const token = localStorage.getItem('token');
+      if (!token) throw new Error('Token bulunamadı');
+      
+      const response = await api.post('/api/token/verify/', { token });
+      return response as ApiResponse;
+    } catch (error) {
+      throw new Error(handleApiError(error));
+    }
+  },
   logout: () => {
     localStorage.removeItem('token');
+    localStorage.removeItem('refresh_token');
   },
 };
 
-// Task API
+// Task API with better error handling
 export const taskAPI = {
-  getAll: () => api.get('/api/tasks/'),
-  getById: (id: number) => api.get(`/api/tasks/${id}/`),
-  create: (taskData: any) => api.post('/api/tasks/', taskData),
-  update: (id: number, taskData: any) => api.put(`/api/tasks/${id}/`, taskData),
-  delete: (id: number) => api.delete(`/api/tasks/${id}/`),
-  toggleComplete: (id: number) => api.post(`/api/tasks/${id}/toggle/`),
+  getAll: async (): Promise<ApiResponse<Task[]>> => {
+    try {
+      const response = await api.get(`/api/${API_VERSION}/tasks/`);
+      return response as ApiResponse<Task[]>;
+    } catch (error) {
+      throw new Error(handleApiError(error));
+    }
+  },
+  getById: async (id: number): Promise<ApiResponse<Task>> => {
+    try {
+      const response = await api.get(`/api/${API_VERSION}/tasks/${id}/`);
+      return response as ApiResponse<Task>;
+    } catch (error) {
+      throw new Error(handleApiError(error));
+    }
+  },
+  create: async (taskData: CreateTaskData): Promise<ApiResponse<Task>> => {
+    try {
+      const response = await api.post(`/api/${API_VERSION}/tasks/`, taskData);
+      return response as ApiResponse<Task>;
+    } catch (error) {
+      throw new Error(handleApiError(error));
+    }
+  },
+  update: async (id: number, taskData: UpdateTaskData): Promise<ApiResponse<Task>> => {
+    try {
+      const response = await api.put(`/api/${API_VERSION}/tasks/${id}/`, taskData);
+      return response as ApiResponse<Task>;
+    } catch (error) {
+      throw new Error(handleApiError(error));
+    }
+  },
+  delete: async (id: number): Promise<ApiResponse> => {
+    try {
+      const response = await api.delete(`/api/${API_VERSION}/tasks/${id}/`);
+      return response as ApiResponse;
+    } catch (error) {
+      throw new Error(handleApiError(error));
+    }
+  },
+  toggleComplete: async (id: number): Promise<ApiResponse<Task>> => {
+    try {
+      const response = await api.post(`/api/${API_VERSION}/tasks/${id}/toggle/`);
+      return response as ApiResponse<Task>;
+    } catch (error) {
+      throw new Error(handleApiError(error));
+    }
+  },
 };
 
 // UserProfile API
 export const userProfileAPI = {
-  getAll: () => api.get('/api/userprofiles/'),
-  getById: (id: number) => api.get(`/api/userprofiles/${id}/`),
-  create: (profileData: any) => api.post('/api/userprofiles/', profileData),
-  update: (id: number, profileData: any) => api.put(`/api/userprofiles/${id}/`, profileData),
-  delete: (id: number) => api.delete(`/api/userprofiles/${id}/`),
+  getAll: async () => {
+    try {
+      const response = await api.get(`/api/${API_VERSION}/userprofiles/`);
+      return response;
+    } catch (error) {
+      throw new Error(handleApiError(error));
+    }
+  },
+  getById: async (id: number) => {
+    try {
+      const response = await api.get(`/api/${API_VERSION}/userprofiles/${id}/`);
+      return response;
+    } catch (error) {
+      throw new Error(handleApiError(error));
+    }
+  },
+  create: async (profileData: any) => {
+    try {
+      const response = await api.post(`/api/${API_VERSION}/userprofiles/`, profileData);
+      return response;
+    } catch (error) {
+      throw new Error(handleApiError(error));
+    }
+  },
+  update: async (id: number, profileData: any) => {
+    try {
+      const response = await api.put(`/api/${API_VERSION}/userprofiles/${id}/`, profileData);
+      return response;
+    } catch (error) {
+      throw new Error(handleApiError(error));
+    }
+  },
+  delete: async (id: number) => {
+    try {
+      const response = await api.delete(`/api/${API_VERSION}/userprofiles/${id}/`);
+      return response;
+    } catch (error) {
+      throw new Error(handleApiError(error));
+    }
+  },
 };
 
 // Team API
 export const teamAPI = {
-  getAll: () => api.get('/api/teams/'),
-  getById: (id: number) => api.get(`/api/teams/${id}/`),
-  create: (teamData: any) => api.post('/api/teams/', teamData),
-  update: (id: number, teamData: any) => api.put(`/api/teams/${id}/`, teamData),
-  delete: (id: number) => api.delete(`/api/teams/${id}/`),
+  getAll: async () => {
+    try {
+      const response = await api.get(`/api/${API_VERSION}/teams/`);
+      return response;
+    } catch (error) {
+      throw new Error(handleApiError(error));
+    }
+  },
+  getById: async (id: number) => {
+    try {
+      const response = await api.get(`/api/${API_VERSION}/teams/${id}/`);
+      return response;
+    } catch (error) {
+      throw new Error(handleApiError(error));
+    }
+  },
+  create: async (teamData: any) => {
+    try {
+      const response = await api.post(`/api/${API_VERSION}/teams/`, teamData);
+      return response;
+    } catch (error) {
+      throw new Error(handleApiError(error));
+    }
+  },
+  update: async (id: number, teamData: any) => {
+    try {
+      const response = await api.put(`/api/${API_VERSION}/teams/${id}/`, teamData);
+      return response;
+    } catch (error) {
+      throw new Error(handleApiError(error));
+    }
+  },
+  delete: async (id: number) => {
+    try {
+      const response = await api.delete(`/api/${API_VERSION}/teams/${id}/`);
+      return response;
+    } catch (error) {
+      throw new Error(handleApiError(error));
+    }
+  },
 };
 
 // TaskComment API
 export const taskCommentAPI = {
-  getAll: () => api.get('/api/taskcomments/'),
-  getById: (id: number) => api.get(`/api/taskcomments/${id}/`),
-  create: (commentData: any) => api.post('/api/taskcomments/', commentData),
-  update: (id: number, commentData: any) => api.put(`/api/taskcomments/${id}/`, commentData),
-  delete: (id: number) => api.delete(`/api/taskcomments/${id}/`),
-  getByTask: (taskId: number) => api.get(`/api/taskcomments/?task=${taskId}`),
+  getAll: async () => {
+    try {
+      const response = await api.get(`/api/${API_VERSION}/taskcomments/`);
+      return response;
+    } catch (error) {
+      throw new Error(handleApiError(error));
+    }
+  },
+  getById: async (id: number) => {
+    try {
+      const response = await api.get(`/api/${API_VERSION}/taskcomments/${id}/`);
+      return response;
+    } catch (error) {
+      throw new Error(handleApiError(error));
+    }
+  },
+  create: async (commentData: any) => {
+    try {
+      const response = await api.post(`/api/${API_VERSION}/taskcomments/`, commentData);
+      return response;
+    } catch (error) {
+      throw new Error(handleApiError(error));
+    }
+  },
+  update: async (id: number, commentData: any) => {
+    try {
+      const response = await api.put(`/api/${API_VERSION}/taskcomments/${id}/`, commentData);
+      return response;
+    } catch (error) {
+      throw new Error(handleApiError(error));
+    }
+  },
+  delete: async (id: number) => {
+    try {
+      const response = await api.delete(`/api/${API_VERSION}/taskcomments/${id}/`);
+      return response;
+    } catch (error) {
+      throw new Error(handleApiError(error));
+    }
+  },
+  getByTask: async (taskId: number) => {
+    try {
+      const response = await api.get(`/api/${API_VERSION}/taskcomments/?task=${taskId}`);
+      return response;
+    } catch (error) {
+      throw new Error(handleApiError(error));
+    }
+  },
 };
 
 // TaskAttachment API
 export const taskAttachmentAPI = {
-  getAll: () => api.get('/api/taskattachments/'),
-  getById: (id: number) => api.get(`/api/taskattachments/${id}/`),
-  create: (attachmentData: any) => api.post('/api/taskattachments/', attachmentData),
-  update: (id: number, attachmentData: any) => api.put(`/api/taskattachments/${id}/`, attachmentData),
-  delete: (id: number) => api.delete(`/api/taskattachments/${id}/`),
-  getByTask: (taskId: number) => api.get(`/api/taskattachments/?task=${taskId}`),
+  getAll: async () => {
+    try {
+      const response = await api.get(`/api/${API_VERSION}/taskattachments/`);
+      return response;
+    } catch (error) {
+      throw new Error(handleApiError(error));
+    }
+  },
+  getById: async (id: number) => {
+    try {
+      const response = await api.get(`/api/${API_VERSION}/taskattachments/${id}/`);
+      return response;
+    } catch (error) {
+      throw new Error(handleApiError(error));
+    }
+  },
+  create: async (attachmentData: any) => {
+    try {
+      const response = await api.post(`/api/${API_VERSION}/taskattachments/`, attachmentData);
+      return response;
+    } catch (error) {
+      throw new Error(handleApiError(error));
+    }
+  },
+  update: async (id: number, attachmentData: any) => {
+    try {
+      const response = await api.put(`/api/${API_VERSION}/taskattachments/${id}/`, attachmentData);
+      return response;
+    } catch (error) {
+      throw new Error(handleApiError(error));
+    }
+  },
+  delete: async (id: number) => {
+    try {
+      const response = await api.delete(`/api/${API_VERSION}/taskattachments/${id}/`);
+      return response;
+    } catch (error) {
+      throw new Error(handleApiError(error));
+    }
+  },
+  getByTask: async (taskId: number) => {
+    try {
+      const response = await api.get(`/api/${API_VERSION}/taskattachments/?task=${taskId}`);
+      return response;
+    } catch (error) {
+      throw new Error(handleApiError(error));
+    }
+  },
 };
 
 // TaskPriority API
 export const taskPriorityAPI = {
-  getAll: () => api.get('/api/taskpriorities/'),
-  getById: (id: number) => api.get(`/api/taskpriorities/${id}/`),
-  create: (priorityData: any) => api.post('/api/taskpriorities/', priorityData),
-  update: (id: number, priorityData: any) => api.put(`/api/taskpriorities/${id}/`, priorityData),
-  delete: (id: number) => api.delete(`/api/taskpriorities/${id}/`),
+  getAll: async () => {
+    try {
+      const response = await api.get(`/api/${API_VERSION}/taskpriorities/`);
+      return response;
+    } catch (error) {
+      throw new Error(handleApiError(error));
+    }
+  },
+  getById: async (id: number) => {
+    try {
+      const response = await api.get(`/api/${API_VERSION}/taskpriorities/${id}/`);
+      return response;
+    } catch (error) {
+      throw new Error(handleApiError(error));
+    }
+  },
+  create: async (priorityData: any) => {
+    try {
+      const response = await api.post(`/api/${API_VERSION}/taskpriorities/`, priorityData);
+      return response;
+    } catch (error) {
+      throw new Error(handleApiError(error));
+    }
+  },
+  update: async (id: number, priorityData: any) => {
+    try {
+      const response = await api.put(`/api/${API_VERSION}/taskpriorities/${id}/`, priorityData);
+      return response;
+    } catch (error) {
+      throw new Error(handleApiError(error));
+    }
+  },
+  delete: async (id: number) => {
+    try {
+      const response = await api.delete(`/api/${API_VERSION}/taskpriorities/${id}/`);
+      return response;
+    } catch (error) {
+      throw new Error(handleApiError(error));
+    }
+  },
 };
 
 // TaskSchedule API
 export const taskScheduleAPI = {
-  getAll: () => api.get('/api/taskschedules/'),
-  getById: (id: number) => api.get(`/api/taskschedules/${id}/`),
-  create: (scheduleData: any) => api.post('/api/taskschedules/', scheduleData),
-  update: (id: number, scheduleData: any) => api.put(`/api/taskschedules/${id}/`, scheduleData),
-  delete: (id: number) => api.delete(`/api/taskschedules/${id}/`),
+  getAll: async () => {
+    try {
+      const response = await api.get(`/api/${API_VERSION}/taskschedules/`);
+      return response;
+    } catch (error) {
+      throw new Error(handleApiError(error));
+    }
+  },
+  getById: async (id: number) => {
+    try {
+      const response = await api.get(`/api/${API_VERSION}/taskschedules/${id}/`);
+      return response;
+    } catch (error) {
+      throw new Error(handleApiError(error));
+    }
+  },
+  create: async (scheduleData: any) => {
+    try {
+      const response = await api.post(`/api/${API_VERSION}/taskschedules/`, scheduleData);
+      return response;
+    } catch (error) {
+      throw new Error(handleApiError(error));
+    }
+  },
+  update: async (id: number, scheduleData: any) => {
+    try {
+      const response = await api.put(`/api/${API_VERSION}/taskschedules/${id}/`, scheduleData);
+      return response;
+    } catch (error) {
+      throw new Error(handleApiError(error));
+    }
+  },
+  delete: async (id: number) => {
+    try {
+      const response = await api.delete(`/api/${API_VERSION}/taskschedules/${id}/`);
+      return response;
+    } catch (error) {
+      throw new Error(handleApiError(error));
+    }
+  },
 };
 
 // TaskRecurrence API
 export const taskRecurrenceAPI = {
-  getAll: () => api.get('/api/taskrecurrences/'),
-  getById: (id: number) => api.get(`/api/taskrecurrences/${id}/`),
-  create: (recurrenceData: any) => api.post('/api/taskrecurrences/', recurrenceData),
-  update: (id: number, recurrenceData: any) => api.put(`/api/taskrecurrences/${id}/`, recurrenceData),
-  delete: (id: number) => api.delete(`/api/taskrecurrences/${id}/`),
+  getAll: async () => {
+    try {
+      const response = await api.get(`/api/${API_VERSION}/taskrecurrences/`);
+      return response;
+    } catch (error) {
+      throw new Error(handleApiError(error));
+    }
+  },
+  getById: async (id: number) => {
+    try {
+      const response = await api.get(`/api/${API_VERSION}/taskrecurrences/${id}/`);
+      return response;
+    } catch (error) {
+      throw new Error(handleApiError(error));
+    }
+  },
+  create: async (recurrenceData: any) => {
+    try {
+      const response = await api.post(`/api/${API_VERSION}/taskrecurrences/`, recurrenceData);
+      return response;
+    } catch (error) {
+      throw new Error(handleApiError(error));
+    }
+  },
+  update: async (id: number, recurrenceData: any) => {
+    try {
+      const response = await api.put(`/api/${API_VERSION}/taskrecurrences/${id}/`, recurrenceData);
+      return response;
+    } catch (error) {
+      throw new Error(handleApiError(error));
+    }
+  },
+  delete: async (id: number) => {
+    try {
+      const response = await api.delete(`/api/${API_VERSION}/taskrecurrences/${id}/`);
+      return response;
+    } catch (error) {
+      throw new Error(handleApiError(error));
+    }
+  },
 };
 
 // TaskDependence API
 export const taskDependenceAPI = {
-  getAll: () => api.get('/api/taskdependences/'),
-  getById: (id: number) => api.get(`/api/taskdependences/${id}/`),
-  create: (dependenceData: any) => api.post('/api/taskdependences/', dependenceData),
-  update: (id: number, dependenceData: any) => api.put(`/api/taskdependences/${id}/`, dependenceData),
-  delete: (id: number) => api.delete(`/api/taskdependences/${id}/`),
+  getAll: async () => {
+    try {
+      const response = await api.get(`/api/${API_VERSION}/taskdependences/`);
+      return response;
+    } catch (error) {
+      throw new Error(handleApiError(error));
+    }
+  },
+  getById: async (id: number) => {
+    try {
+      const response = await api.get(`/api/${API_VERSION}/taskdependences/${id}/`);
+      return response;
+    } catch (error) {
+      throw new Error(handleApiError(error));
+    }
+  },
+  create: async (dependenceData: any) => {
+    try {
+      const response = await api.post(`/api/${API_VERSION}/taskdependences/`, dependenceData);
+      return response;
+    } catch (error) {
+      throw new Error(handleApiError(error));
+    }
+  },
+  update: async (id: number, dependenceData: any) => {
+    try {
+      const response = await api.put(`/api/${API_VERSION}/taskdependences/${id}/`, dependenceData);
+      return response;
+    } catch (error) {
+      throw new Error(handleApiError(error));
+    }
+  },
+  delete: async (id: number) => {
+    try {
+      const response = await api.delete(`/api/${API_VERSION}/taskdependences/${id}/`);
+      return response;
+    } catch (error) {
+      throw new Error(handleApiError(error));
+    }
+  },
 };
 
 // History API
 export const historyAPI = {
-  getAll: () => api.get('/api/histories/'),
-  getById: (id: number) => api.get(`/api/histories/${id}/`),
-  create: (historyData: any) => api.post('/api/histories/', historyData),
-  update: (id: number, historyData: any) => api.put(`/api/histories/${id}/`, historyData),
-  delete: (id: number) => api.delete(`/api/histories/${id}/`),
+  getAll: async () => {
+    try {
+      const response = await api.get(`/api/${API_VERSION}/histories/`);
+      return response;
+    } catch (error) {
+      throw new Error(handleApiError(error));
+    }
+  },
+  getById: async (id: number) => {
+    try {
+      const response = await api.get(`/api/${API_VERSION}/histories/${id}/`);
+      return response;
+    } catch (error) {
+      throw new Error(handleApiError(error));
+    }
+  },
+  create: async (historyData: any) => {
+    try {
+      const response = await api.post(`/api/${API_VERSION}/histories/`, historyData);
+      return response;
+    } catch (error) {
+      throw new Error(handleApiError(error));
+    }
+  },
+  update: async (id: number, historyData: any) => {
+    try {
+      const response = await api.put(`/api/${API_VERSION}/histories/${id}/`, historyData);
+      return response;
+    } catch (error) {
+      throw new Error(handleApiError(error));
+    }
+  },
+  delete: async (id: number) => {
+    try {
+      const response = await api.delete(`/api/${API_VERSION}/histories/${id}/`);
+      return response;
+    } catch (error) {
+      throw new Error(handleApiError(error));
+    }
+  },
 };
 
 // TaskReport API
 export const taskReportAPI = {
-  getAll: () => api.get('/api/taskreports/'),
-  getById: (id: number) => api.get(`/api/taskreports/${id}/`),
-  create: (reportData: any) => api.post('/api/taskreports/', reportData),
-  update: (id: number, reportData: any) => api.put(`/api/taskreports/${id}/`, reportData),
-  delete: (id: number) => api.delete(`/api/taskreports/${id}/`),
+  getAll: async () => {
+    try {
+      const response = await api.get(`/api/${API_VERSION}/taskreports/`);
+      return response;
+    } catch (error) {
+      throw new Error(handleApiError(error));
+    }
+  },
+  getById: async (id: number) => {
+    try {
+      const response = await api.get(`/api/${API_VERSION}/taskreports/${id}/`);
+      return response;
+    } catch (error) {
+      throw new Error(handleApiError(error));
+    }
+  },
+  create: async (reportData: any) => {
+    try {
+      const response = await api.post(`/api/${API_VERSION}/taskreports/`, reportData);
+      return response;
+    } catch (error) {
+      throw new Error(handleApiError(error));
+    }
+  },
+  update: async (id: number, reportData: any) => {
+    try {
+      const response = await api.put(`/api/${API_VERSION}/taskreports/${id}/`, reportData);
+      return response;
+    } catch (error) {
+      throw new Error(handleApiError(error));
+    }
+  },
+  delete: async (id: number) => {
+    try {
+      const response = await api.delete(`/api/${API_VERSION}/taskreports/${id}/`);
+      return response;
+    } catch (error) {
+      throw new Error(handleApiError(error));
+    }
+  },
 };
 
 // UserTeams API
 export const userTeamsAPI = {
-  getAll: () => api.get('/api/userteams/'),
-  getById: (id: number) => api.get(`/api/userteams/${id}/`),
-  create: (userTeamData: any) => api.post('/api/userteams/', userTeamData),
-  update: (id: number, userTeamData: any) => api.put(`/api/userteams/${id}/`, userTeamData),
-  delete: (id: number) => api.delete(`/api/userteams/${id}/`),
+  getAll: async () => {
+    try {
+      const response = await api.get(`/api/${API_VERSION}/userteams/`);
+      return response;
+    } catch (error) {
+      throw new Error(handleApiError(error));
+    }
+  },
+  getById: async (id: number) => {
+    try {
+      const response = await api.get(`/api/${API_VERSION}/userteams/${id}/`);
+      return response;
+    } catch (error) {
+      throw new Error(handleApiError(error));
+    }
+  },
+  create: async (userTeamData: any) => {
+    try {
+      const response = await api.post(`/api/${API_VERSION}/userteams/`, userTeamData);
+      return response;
+    } catch (error) {
+      throw new Error(handleApiError(error));
+    }
+  },
+  update: async (id: number, userTeamData: any) => {
+    try {
+      const response = await api.put(`/api/${API_VERSION}/userteams/${id}/`, userTeamData);
+      return response;
+    } catch (error) {
+      throw new Error(handleApiError(error));
+    }
+  },
+  delete: async (id: number) => {
+    try {
+      const response = await api.delete(`/api/${API_VERSION}/userteams/${id}/`);
+      return response;
+    } catch (error) {
+      throw new Error(handleApiError(error));
+    }
+  },
 };
 
 export default api;
