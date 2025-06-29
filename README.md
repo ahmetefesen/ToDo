@@ -312,4 +312,12 @@ Herhangi bir sorun yaşarsanız:
 - **Veritabanı**: Production ortamında PostgreSQL kullanılması önerilir.
 - **Token Güvenliği**: JWT blacklist sistemi aktif olarak kullanılmaktadır.
 
+## 🗂️ Veritabanı Diyagramı
+
+Aşağıdaki diyagram, uygulamanın temel veri modelini ve tablolar arası ilişkileri göstermektedir. Backend tamamen RESTful ve responsive bir şekilde bu model etrafında inşa edilmiştir.
+
+![TaskBreeze Veritabanı Diyagramı](./TaskBreeze%20diagram.png)
+
+---
+
 
