@@ -2,7 +2,7 @@ from django.shortcuts import render, redirect
 from django.views import View
 from django.shortcuts import redirect
 from django.db import transaction
-from django.http import JsonResponse
+from django.http import JsonResponse, HttpResponse
 from django.views.decorators.csrf import csrf_exempt
 from django.utils.decorators import method_decorator
 
@@ -79,11 +79,34 @@ class TaskDetailAPI(generics.RetrieveUpdateDestroyAPIView):
     def update(self, request, *args, **kwargs):
         """Görev güncelleme"""
         try:
+            old_task = self.get_object()
+            old_data = {
+                'title': old_task.title,
+                'description': old_task.description,
+                'status': old_task.status,
+                'priority': old_task.priority,
+                'due_date': str(old_task.due_date) if old_task.due_date else None
+            }
             response = super().update(request, *args, **kwargs)
+            new_task = self.get_object()
+            new_data = {
+                'title': new_task.title,
+                'description': new_task.description,
+                'status': new_task.status,
+                'priority': new_task.priority,
+                'due_date': str(new_task.due_date) if new_task.due_date else None
+            }
+            # Değişen alanları bul
+            changes = []
+            for key in old_data:
+                if old_data[key] != new_data[key]:
+                    changes.append(f"{key}: '{old_data[key]}' → '{new_data[key]}'")
+            changes_str = ", ".join(changes) if changes else "Değişiklik yok"
             # Log görev güncelleme
             OperationLogger.log_task_updated(
                 request.user, 
-                self.get_object().title, 
+                new_task.title, 
+                changes_str, 
                 get_client_ip(request)
             )
             return response
@@ -260,3 +283,6 @@ class RegisterAPIView(generics.CreateAPIView):
                 'email': user.email
             }, status=status.HTTP_201_CREATED)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+def home(request):
+    return HttpResponse("Bu proje sadece API tabanlıdır. Frontend için React uygulamasını kullanınız.")

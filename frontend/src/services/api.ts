@@ -86,7 +86,7 @@ export const authAPI = {
   },
   register: async (userData: RegisterData): Promise<ApiResponse> => {
     try {
-      const response = await api.post('/api/register/', userData);
+      const response = await api.post('/api/v1/register/', userData);
       return response as ApiResponse;
     } catch (error) {
       throw new Error(handleApiError(error));
